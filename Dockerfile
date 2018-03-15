@@ -37,4 +37,4 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 EXPOSE 8080
 
-CMD "/opt/http-did-auth-proxy/run.sh"
+CMD "/opt/http-did-auth-proxy/Docker-run.sh"
