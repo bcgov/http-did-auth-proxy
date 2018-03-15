@@ -1,51 +1,48 @@
-# DID Auth Proxy
 
-This is an HTTP proxy that uses [HTTP Signatures](https://www.ietf.org/id/draft-cavage-http-signatures-09.txt) based on [Decentralized Identifiers](https://w3c-ccg.github.io/did-spec/) for authenticated HTTP requests.
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
-It can run in two modes:
 
-### Signing mode
+# DID Auth HTTP Proxy
 
-The DID Auth proxy signs an incoming HTTP request using a pre-configured signing key, before forwarding the request. In this mode, the DID
-Auth proxy adds an `Authorization` header to the HTTP request, e.g.:
+This is a DID Auth HTTP proxy that uses [HTTP Signatures](https://www.ietf.org/id/draft-cavage-http-signatures-09.txt) based on [Decentralized Identifiers](https://w3c-ccg.github.io/did-spec/) for authenticated HTTP requests.
 
-	Authorization: Signature keyId="did:v1:test:nym:rZdPg5VF6SqrVuEYEHAuDaeikkA2D8QBLRJQRnhz3pI",algorithm="rsa-sha256",headers="(request-target) user-agent host accept-encoding",signature="vydQPt44ND67cn6qIzb4vVMoj3Xe7KKkoc1QXjkVeAORxLJupZGnb7EfFUKPNQWLwu0s/FJMlw3uwq1JnaXX2v8fjfjNlWcKO8RO/OL2Um7TViuLlBNmGFbliOGMjICNTXegS5q7tdnF6MoKwwtjWqkWi9o2YihZBWiwC6FxyOA3xBHqs6Xnf5VZ6MqQddFAjSLtnRuL0HwQEQ2ZkdLSxLKcOvet8siMEpTQRsFBAfxz6C/bsDiIvwzd0L2HVrv1qjzeaV+SeGBW0WXRpxuQCbcuTiKqxTogtCzu3WPDWUwrhb1ZTat+kv+umzoYCjOJKuxmOnXm4VSWDlOyqUNvfQ=="
+## Technology Stack Used
 
-### Verifying mode
+ * [Decentralized Identifiers (DIDs)](https://w3c-ccg.github.io/did-spec/)
+ * [DID Auth](https://github.com/WebOfTrustInfo/rebooting-the-web-of-trust-spring2018/blob/master/draft-documents/did_auth_draft.md)
+ * [HTTP Signatures](https://www.ietf.org/id/draft-cavage-http-signatures-09.txt)
 
-The DID Auth proxy verifies a signature on an incoming HTTP request by discovering a DID's public key using the DIF [Universal Resolver](https://github.com/decentralized-identity/universal-resolver/). In this mode, the DID Auth proxy looks
-for the `Authorization` header above, and if successfully verified, adds a `Verified-Did` header to the HTTP request, e.g.:
+## Third-Party Products/Libraries used and the License they are covert by
 
-	Verified-Did: did:v1:test:nym:rZdPg5VF6SqrVuEYEHAuDaeikkA2D8QBLRJQRnhz3pI
+ * [LittleProxy](https://github.com/adamfisk/LittleProxy) - Apache-2.0
+ * [http-signatures-java](https://github.com/tomitribe/http-signatures-java) - Apache-2.0
+ * [bitcoinj](https://github.com/bitcoinj/bitcoinj/) - Apache-2.0
+ * [kalium](https://github.com/abstractj/kalium/) - Apache-2.0
+ * [universal-resolver-java](https://github.com/decentralized-identity/universal-resolver/tree/master/implementations/java) - Apache-2.0
 
-It is possible to run two instances of the DID Auth proxy in a chained mode, where one instance signs an HTTP request, and the other verifies it. In this case,
-it is expected that the HTTP client has a close trust relationship with a singing DID Auth proxy, and the protected target service has a close trust relationship
-with a verifying DID Auth proxy.
+## Project Status
 
-## Typical Deployment
+Under development for a [BCDevExchange opportunity](https://bcdevexchange.org/opportunities/opp-initial-reference-implementation-of-decentralized-authentication--did-auth--and-authorization-mechanisms).
 
-                            sign HTTP request using              lookup DID key using UniR
-                           pre-configured DID and key            and verify HTTP signature
-                                       |                                     ^
-                                       v                                     |
-	 _________________          ________________                      ________________          ________________
-	|                 |  HTTP  |                |        HTTP        |                |  HTTP  |                |
-	| HTTP Client     | -----> | Signing        | =================> | Verifying      | -----> | Protected      |
-	|                 |        | DID Auth Proxy |                    | DID Auth Proxy |        | Target Service |
-	|_________________|        |________________|                    |________________|        |________________|
-	
-	         (trust relationship)               (untrusted connection)               (trust relationship)
-	         (e.g. local network)                                                    (e.g. local network) 
+All repositories related to this project:
 
-This shows a deployment involving two instances of the DID Auth proxy in a chained mode.
+ * https://github.com/bcgov/did-auth-extension - A DID Auth browser add-on
+ * https://github.com/bcgov/did-auth-relying-party - A DID Auth relying party
+ * https://github.com/bcgov/http-did-auth-proxy - A DID Auth HTTP proxy **(this repository)**
 
-## How to build
+## Documentation
 
-A Docker image can be built as follows:
+Architecture: [architecture.md](./docs/architecture.md)
+
+Signing and verifying mode: [modes.md](./docs/modes.md)
+
+## Deployment (Local Development)
+
+Build with Docker:
 
 	docker build -f ./Dockerfile -t http_did_auth_proxy .	
 
-## Signing mode
+### Run in signing mode
 
 Required parameters:
 
@@ -60,9 +57,9 @@ Example #1:
 
 Example #2:
 
-	docker run -ti -p 9091:8080 -e signing=1 -e signingDid=did:sov:DavnUKB3kjn7VmVZXzEDL7 -e signingKey=2SqJFQVkR4HvqoLYwfpw6cZwxfpzdjtXj1KUCvZ7jVWEMfQnKKmgocQ4SRqXcxPy7e4irSd4vmGJoVEtQLeJDtnF -e signingKeyType=ed25519 http_did_auth_prox
+	docker run -ti -p 9091:8080 -e signing=1 -e signingDid=did:sov:DavnUKB3kjn7VmVZXzEDL7 -e signingKey=2SqJFQVkR4HvqoLYwfpw6cZwxfpzdjtXj1KUCvZ7jVWEMfQnKKmgocQ4SRqXcxPy7e4irSd4vmGJoVEtQLeJDtnF -e signingKeyType=ed25519 http_did_auth_proxy
 
-## Verifying mode
+### Run in verifying mode
 
 Required parameters:
 
@@ -73,3 +70,38 @@ Required parameters:
 Example:
 
 	docker run -ti -p 9092:8080 -e signing=0 -e resolverUri=https://uniresolver.io/1.0/identifiers/ -e targetHost=httpbin.org:80 http_did_auth_proxy
+
+### How to test
+
+You can use a `curl` command that will make a call to the proxy in verifying mode, passed through the proxy in signing mode:
+
+	curl http://192.168.200.1:9092/get --proxy 192.168.200.1:9091
+
+(Replace 192.168.200.1 with your actual IP address that is reachable by Docker containers)
+
+## Getting Help or Reporting an Issue
+
+To report bugs/issues/feature requests, please file an [issue](../../issues).
+
+## How to Contribute
+
+If you would like to contribute, please see our [CONTRIBUTING](./CONTRIBUTING.md) guidelines.
+
+Please note that this project is released with a [Contributor Code of Conduct](./CODE_OF_CONDUCT.md). 
+By participating in this project you agree to abide by its terms.
+
+## License
+
+    Copyright 2018 Province of British Columbia
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
