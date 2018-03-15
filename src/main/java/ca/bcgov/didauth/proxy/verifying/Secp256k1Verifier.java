@@ -5,11 +5,12 @@ import java.security.GeneralSecurityException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.ECKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
 
-class Secp256k1Verifier extends Verifier<byte[]> {
+class Secp256k1Verifier extends Verifier<ECKey> {
 
 	private static Logger log = LoggerFactory.getLogger(Secp256k1Verifier.class);
 
@@ -26,7 +27,7 @@ class Secp256k1Verifier extends Verifier<byte[]> {
 	}
 
 	@Override
-	public byte[] verifyingKey(uniresolver.did.PublicKey didPublicKey) throws GeneralSecurityException {
+	public ECKey verifyingKey(uniresolver.did.PublicKey didPublicKey) throws GeneralSecurityException {
 
 		if (! didPublicKey.isType(DID_PUBLIC_KEY_TYPE)) {
 
@@ -37,18 +38,18 @@ class Secp256k1Verifier extends Verifier<byte[]> {
 		String verificationKeyString;
 
 		verificationKeyString = didPublicKey.getPublicKeyBase64();
-		if (verificationKeyString != null) return Base64.decodeBase64(verificationKeyString);
+		if (verificationKeyString != null) return ECKey.fromPublicOnly(Base64.decodeBase64(verificationKeyString));
 		verificationKeyString = didPublicKey.getPublicKeyBase58();
-		if (verificationKeyString != null) return Base58.decode(verificationKeyString);
+		if (verificationKeyString != null) return ECKey.fromPublicOnly(Base58.decode(verificationKeyString));
 		verificationKeyString = didPublicKey.getPublicKeyHex();
-		if (verificationKeyString != null) return Hex.decode(verificationKeyString);
+		if (verificationKeyString != null) return ECKey.fromPublicOnly(Hex.decode(verificationKeyString));
 
 		if (log.isDebugEnabled()) log.debug("Public key " + didPublicKey.getId() + " has no data.");
 		return null;
 	}
 
 	@Override
-	public boolean verify(byte[] signingBytes, byte[] signatureBytes, byte[] verifyingKey) throws GeneralSecurityException, IOException {
+	public boolean verify(byte[] signingBytes, byte[] signatureBytes, ECKey verifyingKey) throws GeneralSecurityException, IOException {
 
 		return false;
 	}

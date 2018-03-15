@@ -1,14 +1,12 @@
 package ca.bcgov.didauth.proxy.signing;
 
-import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.List;
 
-import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.DumpedPrivateKey;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.core.Sha256Hash;
 
-import ca.bcgov.didauth.proxy.util.Signature;
-
-class Secp256k1Signer extends Signer<byte[]> {
+class Secp256k1Signer extends Signer<ECKey> {
 
 	private static final String SIGNING_KEY_TYPE = "secp256k1";
 	private static final String ALGORITHM = "secp256k1";
@@ -23,14 +21,22 @@ class Secp256k1Signer extends Signer<byte[]> {
 	}
 
 	@Override
-	public byte[] signingKey(String signingKeyString) throws GeneralSecurityException {
+	public String algorithm() {
 
-		return Base58.decode(signingKeyString);
+		return ALGORITHM;
 	}
 
 	@Override
-	public Signature sign(byte[] signingBytes, String signingDid, List<String> signedHeaderNames, byte[] signingKey) throws GeneralSecurityException, IOException {
+	public ECKey signingKey(String signingKeyString) throws GeneralSecurityException {
 
-		return null;
+		DumpedPrivateKey dpk = DumpedPrivateKey.fromBase58(null, signingKeyString);
+
+		return dpk.getKey();
+	}
+
+	@Override
+	public byte[] sign(byte[] signingBytes, ECKey signingKey) {
+
+		return signingKey.sign(Sha256Hash.wrap(signingBytes)).encodeToDER();
 	}
 }

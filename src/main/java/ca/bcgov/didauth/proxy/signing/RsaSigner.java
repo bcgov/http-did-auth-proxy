@@ -6,17 +6,10 @@ import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.List;
 
 import org.apache.commons.codec.binary.Base64;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import ca.bcgov.didauth.proxy.util.Signature;
 
 class RsaSigner extends Signer<PrivateKey> {
-
-	private static Logger log = LoggerFactory.getLogger(RsaSigner.class);
 
 	private static final String SIGNING_KEY_TYPE = "rsa";
 	private static final String ALGORITHM = "rsa-sha256";
@@ -45,6 +38,12 @@ class RsaSigner extends Signer<PrivateKey> {
 	}
 
 	@Override
+	public String algorithm() {
+
+		return ALGORITHM;
+	}
+
+	@Override
 	public PrivateKey signingKey(String signingKeyString) throws GeneralSecurityException {
 
 		signingKeyString = signingKeyString.replace("-----BEGIN PRIVATE KEY-----", "");
@@ -57,19 +56,14 @@ class RsaSigner extends Signer<PrivateKey> {
 	}
 
 	@Override
-	public Signature sign(byte[] signingBytes, String signingDid, List<String> signedHeaderNames, PrivateKey signingKey) throws GeneralSecurityException, IOException {
+	public byte[] sign(byte[] signingBytes, PrivateKey signingKey) throws GeneralSecurityException, IOException {
 
 		java.security.Signature instance = java.security.Signature.getInstance(JVM_ALGORITHM);
 
 		instance.initSign(signingKey);
 		instance.update(signingBytes);
 		byte[] signatureBytes = instance.sign();
-		String signatureString = Base64.encodeBase64String(signatureBytes);
-		if (log.isDebugEnabled()) log.debug("Signature string: " + signatureString);
 
-		Signature signature = new Signature(signingDid, ALGORITHM, signatureString, signedHeaderNames);
-		if (log.isDebugEnabled()) log.debug("Signature: " + signature);
-
-		return signature;
+		return signatureBytes;
 	}
 }

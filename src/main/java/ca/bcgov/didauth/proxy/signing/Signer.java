@@ -6,6 +6,7 @@ import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tomitribe.auth.signatures.Signatures;
@@ -26,8 +27,9 @@ abstract class Signer<KEY> {
 		throw new IllegalArgumentException("Unknown signing key type: " + signingKeyType);
 	}
 
+	public abstract String algorithm();
 	public abstract KEY signingKey(String signingKeyString) throws GeneralSecurityException;
-	public abstract Signature sign(byte[] signingBytes, String signingDid, List<String> signedHeaderNames, KEY signingKey) throws GeneralSecurityException, IOException;
+	public abstract byte[] sign(byte[] signingBytes, KEY signingKey) throws GeneralSecurityException, IOException;
 
 	public Signature sign(String method, String uri, Map<String, String> headers, String signingDid, KEY signingKey) throws GeneralSecurityException, IOException {
 
@@ -42,6 +44,13 @@ abstract class Signer<KEY> {
 		byte[] signingBytes = signingString.getBytes(StandardCharsets.UTF_8);
 		if (log.isDebugEnabled()) log.debug("Signing string: " + signingString);
 
-		return this.sign(signingBytes, signingDid, signedHeaderNames, signingKey);
+		byte[] signatureBytes = this.sign(signingBytes, signingKey);
+		String signatureString = Base64.encodeBase64String(signatureBytes);
+		if (log.isDebugEnabled()) log.debug("Signature string: " + signatureString);
+
+		Signature signature = new Signature(signingDid, this.algorithm(), signatureString, signedHeaderNames);
+		if (log.isDebugEnabled()) log.debug("Signature: " + signature);
+
+		return signature;
 	}
 }

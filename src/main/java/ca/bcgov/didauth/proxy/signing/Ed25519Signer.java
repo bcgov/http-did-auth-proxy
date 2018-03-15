@@ -3,16 +3,13 @@ package ca.bcgov.didauth.proxy.signing;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
-import java.util.List;
 
 import org.abstractj.kalium.NaCl;
 import org.abstractj.kalium.NaCl.Sodium;
-import org.apache.commons.codec.binary.Base64;
 import org.bitcoinj.core.Base58;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ca.bcgov.didauth.proxy.util.Signature;
 import jnr.ffi.byref.LongLongByReference;
 
 class Ed25519Signer extends Signer<byte[]> {
@@ -37,31 +34,30 @@ class Ed25519Signer extends Signer<byte[]> {
 	}
 
 	@Override
+	public String algorithm() {
+
+		return ALGORITHM;
+	}
+
+	@Override
 	public byte[] signingKey(String signingKeyString) throws GeneralSecurityException {
 
 		return Base58.decode(signingKeyString);
 	}
 
 	@Override
-	public Signature sign(byte[] signingBytes, String signingDid, List<String> signedHeaderNames, byte[] signingKey) throws GeneralSecurityException, IOException {
+	public byte[] sign(byte[] signingBytes, byte[] signingKey) throws GeneralSecurityException, IOException {
 
 		// sign
 
-		byte[] signatureBytes = sign(signingBytes, signingKey);
-		String signatureString = Base64.encodeBase64String(signatureBytes);
-		if (log.isDebugEnabled()) log.debug("Signature string: " + signatureString);
-
-		Signature signature = new Signature(signingDid, ALGORITHM, signatureString, signedHeaderNames);
-		if (log.isDebugEnabled()) log.debug("Signature: " + signature);
-
-		return signature;
+		return signInternal(signingBytes, signingKey);
 	}
 
 	/*
 	 * Helper methods
 	 */
 
-	private static byte[] sign(byte[] message, byte[] privateKey) throws GeneralSecurityException {
+	private static byte[] signInternal(byte[] message, byte[] privateKey) throws GeneralSecurityException {
 
 		if (privateKey.length != Sodium.CRYPTO_SIGN_ED25519_SECRETKEYBYTES) throw new GeneralSecurityException("Invalid private key length.");
 

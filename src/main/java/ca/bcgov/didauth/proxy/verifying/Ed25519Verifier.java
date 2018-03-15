@@ -60,23 +60,23 @@ class Ed25519Verifier extends Verifier<byte[]> {
 	@Override
 	public boolean verify(byte[] signingBytes, byte[] signatureBytes, byte[] verifyingKey) throws GeneralSecurityException, IOException {
 
-		boolean validate = validate(signingBytes, signatureBytes, verifyingKey);
+		boolean verified = verifyInternal(signingBytes, signatureBytes, verifyingKey);
 
-		return validate;
+		return verified;
 	}
 
 	/*
 	 * Helper methods
 	 */
 
-	public boolean validate(byte[] message, byte[] signatureValue, byte[] publicKey) throws GeneralSecurityException {
+	public boolean verifyInternal(byte[] signingBytes, byte[] signatureBytes, byte[] publicKey) throws GeneralSecurityException {
 
-		if (signatureValue.length != Sodium.CRYPTO_SIGN_ED25519_BYTES) throw new GeneralSecurityException("Invalid signature length.");
+		if (signatureBytes.length != Sodium.CRYPTO_SIGN_ED25519_BYTES) throw new GeneralSecurityException("Invalid signature length.");
 		if (publicKey.length != Sodium.CRYPTO_SIGN_ED25519_PUBLICKEYBYTES) throw new GeneralSecurityException("Invalid public key length.");
 
-		byte[] sigAndMsg = new byte[signatureValue.length + message.length];
-		System.arraycopy(signatureValue, 0, sigAndMsg, 0, signatureValue.length);
-		System.arraycopy(message, 0, sigAndMsg, signatureValue.length, message.length);
+		byte[] sigAndMsg = new byte[signatureBytes.length + signingBytes.length];
+		System.arraycopy(signatureBytes, 0, sigAndMsg, 0, signatureBytes.length);
+		System.arraycopy(signingBytes, 0, sigAndMsg, signatureBytes.length, signingBytes.length);
 
 		byte[] buffer = new byte[sigAndMsg.length];
 		LongLongByReference bufferLen = new LongLongByReference();
@@ -86,6 +86,6 @@ class Ed25519Verifier extends Verifier<byte[]> {
 
 		buffer = Arrays.copyOf(buffer, buffer.length - Sodium.CRYPTO_SIGN_ED25519_BYTES);
 
-		return Arrays.equals(message, buffer);
+		return Arrays.equals(signingBytes, buffer);
 	}
 }
