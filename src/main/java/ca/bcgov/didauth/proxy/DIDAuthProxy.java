@@ -30,7 +30,7 @@ public class DIDAuthProxy {
 
 			if (log.isDebugEnabled()) log.debug("Resolver URI: " + Configuration.resolverUri());
 			if (log.isDebugEnabled()) log.debug("Target host: " + Configuration.targetHost());
-			bootstrap = bootstrap.withFiltersSource(new VerifyingHttpFilters.Source(Configuration.resolverUri(), Configuration.targetHost()));
+			bootstrap = bootstrap.withFiltersSource(new VerifyingHttpFilters.Source(Configuration.resolverUri(), Configuration.targetHost(), Configuration.whitelist()));
 		} else {
 
 			throw new IllegalArgumentException("Missing configuration settings EITHER: 'signing=1' and 'signingDid' and 'signingKey' and 'signingKeyType', OR: 'signing=0' and 'resolverUri'");

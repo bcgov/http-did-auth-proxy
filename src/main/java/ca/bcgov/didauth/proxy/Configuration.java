@@ -75,5 +75,13 @@ public class Configuration {
 
 		return targetHost;
 	}
+
+	static String[] whitelist() {
+
+		String whitelist = System.getenv("whitelist");
+		if (whitelist == null) return null;
+
+		return whitelist.split(",");
+	}
 }
 
