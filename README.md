@@ -64,7 +64,7 @@ Example #2:
 Required parameters:
 
  * `signing=0` - Enables the DID Auth proxy in verifying mode.
- * `resolverUri=https://uniresolver.io/1.0/identifiers/` - The DID to use for signing HTTP requests.
+ * `resolverUri=https://uniresolver.io/1.0/identifiers/` - The URL of the Universal Resolved used to resolve DIDs.
  * `targetHost=httpbin.org:80` - The target host and port to forward requests to.
  * `whitelist=did:sov:DavnUKB3kjn7VmVZXzEDL7,did:v1:test:nym:rZdPg5VF6SqrVuEYEHAuDaeikkA2D8QBLRJQRnhz3pI` - Optional whitelist of DIDs from which to accept signed requests.
 
