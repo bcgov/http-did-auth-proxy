@@ -16,6 +16,10 @@ for the `Authorization` header above, and if successfully verified, adds a `Veri
 
 	Verified-Did: did:v1:test:nym:rZdPg5VF6SqrVuEYEHAuDaeikkA2D8QBLRJQRnhz3pI
 
+This DID can optionally be checked against a whitelist by the DID Auth proxy.
+
+## Chained instances
+
 It is possible to run two instances of the DID Auth proxy in a chained mode, where one instance signs an HTTP request, and the other verifies it. In this case,
 it is expected that the HTTP client has a close trust relationship with a singing DID Auth proxy, and the protected target service has a close trust relationship
 with a verifying DID Auth proxy.

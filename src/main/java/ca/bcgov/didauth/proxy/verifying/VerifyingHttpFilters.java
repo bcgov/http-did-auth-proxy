@@ -2,6 +2,7 @@ package ca.bcgov.didauth.proxy.verifying;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,21 +30,24 @@ public class VerifyingHttpFilters extends HttpFiltersAdapter implements HttpFilt
 
 	private final String resolveUri;
 	private final String targetHost;
+	private final String[] whitelist;
 
-	public VerifyingHttpFilters(HttpRequest originalRequest, ChannelHandlerContext ctx, String resolveUri, String targetHost) {
+	public VerifyingHttpFilters(HttpRequest originalRequest, ChannelHandlerContext ctx, String resolveUri, String targetHost, String[] whitelist) {
 
 		super(originalRequest, ctx);
 
 		this.resolveUri = resolveUri;
 		this.targetHost = targetHost;
+		this.whitelist = whitelist;
 	}
 
-	public VerifyingHttpFilters(HttpRequest originalRequest, String resolveUri, String targetHost) {
+	public VerifyingHttpFilters(HttpRequest originalRequest, String resolveUri, String targetHost, String[] whitelist) {
 
 		super(originalRequest);
 
 		this.resolveUri = resolveUri;
 		this.targetHost = targetHost;
+		this.whitelist = whitelist;
 	}
 
 	@Override
@@ -112,6 +116,20 @@ public class VerifyingHttpFilters extends HttpFiltersAdapter implements HttpFilt
 
 			String verifiedDid = signingDid;
 
+			// check against whitelist
+
+			if (this.whitelist != null) {
+
+				boolean whitelisted = Arrays.asList(this.whitelist).contains(verifiedDid);
+
+				if (log.isDebugEnabled()) log.debug("Checking DID " + verifiedDid + " against whitelist: " + whitelisted);
+
+				if (! whitelisted) {
+
+					throw new GeneralSecurityException("DID " + verifiedDid + " not whitelisted.");
+				}
+			}
+
 			// manipulate headers
 
 			HttpUtil.setVerifiedDid(httpHeaders, verifiedDid);
@@ -134,23 +152,25 @@ public class VerifyingHttpFilters extends HttpFiltersAdapter implements HttpFilt
 
 		private final String resolveUri;
 		private final String targetHost;
+		private final String[] whitelist;
 
-		public Source(String resolveUri, String targetHost) {
+		public Source(String resolveUri, String targetHost, String[] whitelist) {
 
 			this.resolveUri = resolveUri;
 			this.targetHost = targetHost;
+			this.whitelist = whitelist;
 		}
 
 		@Override
 		public HttpFilters filterRequest(HttpRequest originalRequest) {
 
-			return new VerifyingHttpFilters(originalRequest, this.resolveUri, this.targetHost);
+			return new VerifyingHttpFilters(originalRequest, this.resolveUri, this.targetHost, this.whitelist);
 		}
 
 		@Override
 		public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
 
-			return new VerifyingHttpFilters(originalRequest, ctx, this.resolveUri, this.targetHost);
+			return new VerifyingHttpFilters(originalRequest, ctx, this.resolveUri, this.targetHost, this.whitelist);
 		}
 	}
 }
