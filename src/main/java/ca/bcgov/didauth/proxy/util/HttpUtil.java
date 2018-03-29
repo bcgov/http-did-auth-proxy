@@ -27,7 +27,7 @@ public class HttpUtil {
 	public static final String HEADER_AUTHORIZATION = "Authorization";
 	public static final String HEADER_VERIFIED_DID = "Verified-DID";
 
-	public static final String[] REMOVE_HEADERS = new String[] { "Authorization", "Connection", "Proxy-Connection", "Via", "Host" };
+	public static final String[] REMOVE_HEADERS = new String[] { "Authorization", "Connection", "Proxy-Connection", "Via", "Host", "X-Forwarded-Host", "X-Forwarded-Proto", "Forwarded", "X-Forwarded-For", "X-Forwarded-Port" };
 
 	public static HttpResponse exceptionHttpResponse(HttpRequest httpRequest, String message, Exception ex) {
 
