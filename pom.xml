@@ -19,6 +19,13 @@
 		<developerConnection>scm:git:git@github.com:bcgov/http-did-auth-proxy.git</developerConnection>
 	</scm>
 
+	<repositories>
+		<repository>
+			<id>danubetech-maven-public</id>
+			<url>https://repo.danubetech.com/repository/maven-public/</url>
+		</repository>
+	</repositories>
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<github.global.server>github</github.global.server>
@@ -136,7 +143,7 @@
 		<dependency>
 			<groupId>decentralized-identity</groupId>
 			<artifactId>uni-resolver-client</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>0.1.0</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
